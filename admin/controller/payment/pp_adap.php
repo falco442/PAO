@@ -37,6 +37,10 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
 		$this->data['entry_status'] = $this->language->get('entry_status');
 		$this->data['entry_sort_order'] = $this->language->get('entry_sort_order');
+		
+		$this->data['text_onlus'] = $this->language->get('text_onlus');
+		$this->data['text_onlus_paypal_id'] = $this->language->get('text_onlus_paypal_id');
+		$this->data['text_onlus_add'] = $this->language->get('text_onlus_add');
 
 		$this->data['button_save'] = $this->language->get('button_save');
 		$this->data['button_cancel'] = $this->language->get('button_cancel');
@@ -156,6 +160,8 @@ class ControllerPaymentPpAdap extends Controller {
 		} else {
 			$this->data['pp_adap_sort_order'] = $this->config->get('pp_adap_sort_order');
 		}
+		
+		$this->data['onlus'] = $this->model_onlus_onlus->getOnlus();
 
 		$this->template = 'payment/pp_adap.tpl';
 		$this->children = array(
@@ -188,6 +194,30 @@ class ControllerPaymentPpAdap extends Controller {
 		} else {
 			return false;
 		}	
+	}
+	
+	public function install(){
+		$this->createTables();
+	}
+	
+	public function uninstall(){
+		$this->dropTables();
+	}
+	
+	protected function createTables(){
+		$sql = "
+			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."onlus` (
+			`onlus_id` int(10) unsigned NOT NULL,
+			`name` varchar(255) NOT NULL,
+			`paypal_id` varchar(255) NOT NULL,
+			PRIMARY KEY (`onlus_id`)
+			);
+		";
+		$this->db->query($sql);
+	}
+	
+	protected function dropTables(){
+		$sql = "DROP TABLE IF EXISTS ``";
 	}
 }
 ?>

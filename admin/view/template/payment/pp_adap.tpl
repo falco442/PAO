@@ -111,6 +111,22 @@
             <td><?php echo $entry_sort_order; ?></td>
             <td><input type="text" name="pp_adap_sort_order" value="<?php echo $pp_adap_sort_order; ?>" size="1" /></td>
           </tr>
+          
+          <tr>
+			<td colspan="2">
+				<table class="list" id="onlus">
+					<thead>
+						<th><?php echo $text_onlus; ?></th>
+						<th><?php echo $text_onlus_paypal_id; ?></th>
+						<th><?php echo $text_onlus_add; ?></th>
+					</thead>
+					
+					<tbody>
+					</tbody>
+				</table>
+			</td>
+          </tr>
+          
         </table>
       </form>
     </div>
