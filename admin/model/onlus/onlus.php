@@ -24,5 +24,26 @@
 				return false;
 			}
 		}
+		
+		public function validateOnlus($data){
+			foreach($data as $field=>$value){
+				if(empty($value))
+					return false;
+			}
+			return true;
+		}
+		
+		public function addOnlus($data){
+			if(!$this->validateOnlus($data))
+				return;
+			foreach($data as $field=>$value){
+				$fields[] = $field;
+				$values[] = $value;
+			}
+			$fields = implode('`,`',$fields);
+			$values = implode("','",$values);
+			$query = "INSERT INTO ".DB_PREFIX."onlus (`$fields`) VALUES ('$values')";
+			$this->db->query($query);
+		}
 	}
 ?>

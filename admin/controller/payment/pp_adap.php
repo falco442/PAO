@@ -8,8 +8,16 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$this->load->model('setting/setting');
+		$this->load->model('onlus/onlus');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+		
+			if(isset($this->request->post['onlus'])){
+				foreach($this->request->post['onlus'] as $index=>$new_onlus){
+					$this->model_onlus_onlus->addOnlus($new_onlus);
+				}
+			}
+		
 			$this->model_setting_setting->editSetting('pp_adap', $this->request->post);				
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -161,9 +169,10 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['pp_adap_sort_order'] = $this->config->get('pp_adap_sort_order');
 		}
 		
-		$this->load->model('onlus/onlus');
+
 		$this->data['onlus'] = array();
 		$this->data['onlus'] = $this->model_onlus_onlus->getAllOnlus();
+		
 
 		$this->template = 'payment/pp_adap.tpl';
 		$this->children = array(

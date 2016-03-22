@@ -130,9 +130,14 @@
 					<tr>
 						<td class="left"><?php echo $o['name']; ?></td>
 						<td class="left"><?php echo $o['paypal_id']; ?></td>
-						<td class="center"><a class="button">Add</a></td>
+						<td class="center"><a class="button add-onlus" onclick="appendToTable();">Add</a></td>
 					</tr>
 				<?php endforeach; ?>
+					<tr>
+						<td class="left"><input type="text" name="onlus[0][name]"></td>
+						<td class="left"><input type="text" name="onlus[0][paypal_id]"></td>
+						<td class="center"><a class="button add-onlus" onclick="appendToTable();">Add</a></td>
+					</tr>
 				</tbody>
 			</table>
 			
@@ -140,5 +145,20 @@
 		</div>
 	</div>
 </div>
+
+<script type="text/javascript">
+	var new_row = 1;
+
+	function appendToTable(button){
+		var tbody = $('#onlus>tbody');
+		html = '<tr>';
+		html += '<td class="left"><input type="text" name="onlus['+new_row+'][name]"></td>';
+		html += '<td class="left"><input type="text" name="onlus['+new_row+'][paypal_id]"></td>';
+		html += '<td class="center"><a class="button add-onlus" onclick="appendToTable();">Add</a></td>';
+		html += '</tr>';
+		tbody.append(html);
+		new_row++;
+	}
+</script>
 
 <?php echo $footer; ?>
