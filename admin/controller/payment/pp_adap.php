@@ -161,7 +161,9 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['pp_adap_sort_order'] = $this->config->get('pp_adap_sort_order');
 		}
 		
-		$this->data['onlus'] = $this->model_onlus_onlus->getOnlus();
+		$this->load->model('onlus/onlus');
+		$this->data['onlus'] = array();
+		$this->data['onlus'] = $this->model_onlus_onlus->getAllOnlus();
 
 		$this->template = 'payment/pp_adap.tpl';
 		$this->children = array(
@@ -207,7 +209,7 @@ class ControllerPaymentPpAdap extends Controller {
 	protected function createTables(){
 		$sql = "
 			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."onlus` (
-			`onlus_id` int(10) unsigned NOT NULL,
+			`onlus_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 			`name` varchar(255) NOT NULL,
 			`paypal_id` varchar(255) NOT NULL,
 			PRIMARY KEY (`onlus_id`)
