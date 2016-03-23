@@ -14,6 +14,8 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->data['entry_cc_expire_date'] = $this->language->get('entry_cc_expire_date');
 		$this->data['entry_cc_cvv2'] = $this->language->get('entry_cc_cvv2');
 		$this->data['entry_cc_issue'] = $this->language->get('entry_cc_issue');
+		$this->data['entry_choose_onlus'] = $this->language->get('entry_choose_onlus');
+		$this->data['entry_form_onlus_title'] = $this->language->get('entry_form_onlus_title');
 
 		$this->data['button_confirm'] = $this->language->get('button_confirm');
 

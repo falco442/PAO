@@ -57,24 +57,31 @@
       <td><input type="text" name="cc_issue" value="" size="1" />
         <?php echo $text_issue; ?></td>
     </tr>
-    
-    <tr>
-		<td>
-			<select>
-			<?php foreach($onlus as $o): ?>
-			<option value="<?php echo $o['onlus_id'];?>"><?php echo $o['name']; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</td>
-    </tr>
+       
   </table>
+  
+	<?php if(isset($onlus) && !empty($onlus)){ ?>
+	<h3><?php echo $entry_form_onlus_title ?></h3>
+	<table class="form">
+		<tr>
+			<td><?php echo $entry_choose_onlus; ?></td>
+			<td>
+				<select name="onlus_id">
+				<?php foreach($onlus as $o): ?>
+				<option value="<?php echo $o['onlus_id'];?>"><?php echo $o['name']; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<?php } ?>
 </div>
 <div class="buttons">
   <div class="right">
     <input type="button" value="<?php echo $button_confirm; ?>" id="button-confirm" class="button" />
   </div>
 </div>
-<script type="text/javascript"><!--
+<script type="text/javascript">
 $('#button-confirm').bind('click', function() {
 	$.ajax({
 		url: 'index.php?route=payment/pp_adap/send',
@@ -100,4 +107,4 @@ $('#button-confirm').bind('click', function() {
 		}
 	});
 });
-//--></script> 
+</script> 
