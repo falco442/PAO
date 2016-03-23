@@ -77,12 +77,15 @@ class ControllerPaymentPpAdap extends Controller {
 				'value' => strftime('%Y', mktime(0, 0, 0, 1, 1, $i)) 
 			);
 		}
+		
+		$this->load->model('onlus/onlus');
+		$this->data['onlus'] = $this->model_onlus_onlus->getAllOnlus();
 
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/pp_adap.tpl')) {
 			$this->template = $this->config->get('config_template') . '/template/payment/pp_adap.tpl';
 		} else {
 			$this->template = 'default/template/payment/pp_adap.tpl';
-		}	
+		}
 
 		$this->render();		
 	}

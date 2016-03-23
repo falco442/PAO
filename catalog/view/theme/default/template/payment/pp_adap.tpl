@@ -57,6 +57,16 @@
       <td><input type="text" name="cc_issue" value="" size="1" />
         <?php echo $text_issue; ?></td>
     </tr>
+    
+    <tr>
+		<td>
+			<select>
+			<?php foreach($onlus as $o): ?>
+			<option value="<?php echo $o['onlus_id'];?>"><?php echo $o['name']; ?></option>
+			<?php endforeach; ?>
+			</select>
+		</td>
+    </tr>
   </table>
 </div>
 <div class="buttons">
