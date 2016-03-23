@@ -134,16 +134,18 @@
 				
 				<tbody>
 					<tr class="filter"></tr>
+				<?php if(isset($onlus) && !empty($onlus)){ ?>
 				<?php foreach($onlus as $o): ?>
 					<tr>
 						<td class="left"><?php echo $o['name']; ?></td>
 						<td class="left"><?php echo $o['paypal_id']; ?></td>
 						<td class="center">
 							<a class="button add-onlus" onclick="appendToTable();">Add</a>
-							<a class="button remove-onlus" onclick="deleteOnlus(<?php echo $o['onlus_id'] ?>);">Remove</a>
+							<a class="button remove-onlus" onclick="deleteOnlus(<?php echo $o['onlus_id'] ?>);" id="remove-onlus-<?php echo $o['onlus_id']; ?>">Remove</a>
 						</td>
 					</tr>
 				<?php endforeach; ?>
+				<?php } ?>
 					<tr>
 						<td class="left"><input type="text" name="onlus[0][name]"></td>
 						<td class="left"><input type="text" name="onlus[0][paypal_id]"></td>
@@ -179,12 +181,26 @@
 		row.remove();
 	}
 	
-	function deleteOnlus(id){
+	function deleteOnlus(onlus_id){
 		$.ajax({
-			url: "index.php?route=payment/pp_adap&token=<?php echo $token; ?>",
+			url: "index.php?route=payment/pp_adap/removeOnlus&token=<?php echo $token; ?>",
 			method: 'POST',
 			data: {
-				id: id
+				onlus_id: onlus_id
+			},
+// 			type: 'JSON',
+			dataType: 'JSON',
+			type: "POST",
+			statusCode: {
+				200: function(data){
+					console.log(data);
+					var el = $('#remove-onlus-'+onlus_id);
+					var row = el.parent().parent();
+					row.remove();
+				}
+			},
+			error: function(data){
+				alert(data.responseText);
 			}
 		});
 	}

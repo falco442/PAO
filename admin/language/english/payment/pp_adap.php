@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']      = 'PayPal adaptive payments (Daniele)';
+$_['heading_title']      = 'PayPal Adaptive Onlus';
 
 // Text 
 $_['text_payment']       = 'Payment';

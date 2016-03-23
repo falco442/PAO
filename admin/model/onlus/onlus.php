@@ -45,5 +45,10 @@
 			$query = "INSERT INTO ".DB_PREFIX."onlus (`$fields`) VALUES ('$values')";
 			$this->db->query($query);
 		}
+		
+		public function deleteOnlus($id){
+			$query = "DELETE FROM `".DB_PREFIX."onlus` WHERE `onlus_id` = $id";
+			return $this->db->query($query);
+		}
 	}
 ?>

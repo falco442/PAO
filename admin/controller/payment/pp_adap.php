@@ -225,6 +225,30 @@ class ControllerPaymentPpAdap extends Controller {
 		}	
 	}
 	
+	
+	public function removeOnlus(){
+		$json['responseText'] = '';
+		if(!$this->user->hasPermission('modify', 'payment/pp_adap')){
+			$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 403 Forbidden');
+			$json['responseText'] = 'Azione non permessa';
+			$this->response->setOutput(json_encode($json));
+			return;
+		}
+		if(!isset($this->request->post['onlus_id']) || empty($this->request->post['onlus_id'])){
+			$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 404 Not Found');
+			$json['responseText'] = 'ID onlus non specificato';
+			$this->response->setOutput(json_encode($json));
+			return;
+		}
+		$id = $this->request->post['onlus_id'];
+		$this->load->model('onlus/onlus');
+		$this->model_onlus_onlus->deleteOnlus($id);
+		$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 200 OK');
+		$json['responseText'] = 'Cancellata';
+		$this->response->setOutput(json_encode($json));
+		return;
+	}
+	
 	public function install(){
 		$this->createTables();
 	}
