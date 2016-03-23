@@ -112,6 +112,14 @@
 				<td><input type="text" name="pp_adap_sort_order" value="<?php echo $pp_adap_sort_order; ?>" size="1" /></td>
 			</tr>
 			
+			<tr>
+				<td><span class="required">*</span> <?php echo $entry_onlus_amount; ?></td>
+				<td><input type="text" name="pp_adap_onlus_amount" value="<?php echo $pp_adap_onlus_amount; ?>" />
+				<?php if ($error_onlus_amount) { ?>
+				<span class="error"><?php echo $error_onlus_amount; ?></span>
+				<?php } ?></td>
+			</tr>
+			
 			
 			</table>
 			
@@ -132,7 +140,7 @@
 						<td class="left"><?php echo $o['paypal_id']; ?></td>
 						<td class="center">
 							<a class="button add-onlus" onclick="appendToTable();">Add</a>
-							<a class="button remove-onlus" onclick="">Remove</a>
+							<a class="button remove-onlus" onclick="deleteOnlus(<?php echo $o['onlus_id'] ?>);">Remove</a>
 						</td>
 					</tr>
 				<?php endforeach; ?>
@@ -169,6 +177,16 @@
 	function removeFromTable(el){
 		var row = el.parent().parent();
 		row.remove();
+	}
+	
+	function deleteOnlus(id){
+		$.ajax({
+			url: "index.php?route=payment/pp_adap&token=<?php echo $token; ?>",
+			method: 'POST',
+			data: {
+				id: id
+			}
+		});
 	}
 </script>
 

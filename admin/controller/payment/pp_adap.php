@@ -38,6 +38,7 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->data['entry_username'] = $this->language->get('entry_username');
 		$this->data['entry_password'] = $this->language->get('entry_password');
 		$this->data['entry_signature'] = $this->language->get('entry_signature');
+		$this->data['entry_onlus_amount'] = $this->language->get('entry_onlus_amount');
 		$this->data['entry_test'] = $this->language->get('entry_test');
 		$this->data['entry_transaction'] = $this->language->get('entry_transaction');
 		$this->data['entry_total'] = $this->language->get('entry_total');	
@@ -71,6 +72,12 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['error_password'] = '';
 		}
 
+		if (isset($this->error['onlus_amount'])) {
+			$this->data['error_onlus_amount'] = $this->error['onlus_amount'];
+		} else {
+			$this->data['error_onlus_amount'] = '';
+		}
+		
 		if (isset($this->error['signature'])) {
 			$this->data['error_signature'] = $this->error['signature'];
 		} else {
@@ -78,6 +85,7 @@ class ControllerPaymentPpAdap extends Controller {
 		}
 
 		$this->data['breadcrumbs'] = array();
+		$this->data['token'] = $this->session->data['token'];
 
 		$this->data['breadcrumbs'][] = array(
 			'text'      => $this->language->get('text_home'),
@@ -117,6 +125,12 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['pp_adap_signature'] = $this->request->post['pp_adap_signature'];
 		} else {
 			$this->data['pp_adap_signature'] = $this->config->get('pp_adap_signature');
+		}
+		
+		if (isset($this->request->post['pp_adap_onlus_amount'])) {
+			$this->data['pp_adap_onlus_amount'] = $this->request->post['pp_adap_onlus_amount'];
+		} else {
+			$this->data['pp_adap_onlus_amount'] = $this->config->get('pp_adap_onlus_amount');
 		}
 
 		if (isset($this->request->post['pp_adap_test'])) {
@@ -199,6 +213,10 @@ class ControllerPaymentPpAdap extends Controller {
 		if (!$this->request->post['pp_adap_signature']) {
 			$this->error['signature'] = $this->language->get('error_signature');
 		}
+		
+		if (!$this->request->post['pp_adap_onlus_amount']) {
+			$this->error['onlus_amount'] = $this->language->get('error_onlus_amount');
+		}
 
 		if (!$this->error) {
 			return true;
@@ -228,7 +246,7 @@ class ControllerPaymentPpAdap extends Controller {
 	}
 	
 	protected function dropTables(){
-		$sql = "DROP TABLE IF EXISTS ``";
+		$sql = "DROP TABLE IF EXISTS `".DB_PREFIX."onlus`";
 	}
 }
 ?>
