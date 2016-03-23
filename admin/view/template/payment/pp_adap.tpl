@@ -130,7 +130,10 @@
 					<tr>
 						<td class="left"><?php echo $o['name']; ?></td>
 						<td class="left"><?php echo $o['paypal_id']; ?></td>
-						<td class="center"><a class="button add-onlus" onclick="appendToTable();">Add</a></td>
+						<td class="center">
+							<a class="button add-onlus" onclick="appendToTable();">Add</a>
+							<a class="button remove-onlus" onclick="">Remove</a>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 					<tr>
@@ -154,10 +157,18 @@
 		html = '<tr>';
 		html += '<td class="left"><input type="text" name="onlus['+new_row+'][name]"></td>';
 		html += '<td class="left"><input type="text" name="onlus['+new_row+'][paypal_id]"></td>';
-		html += '<td class="center"><a class="button add-onlus" onclick="appendToTable();">Add</a></td>';
+		html += '<td class="center">';
+		html += '<a class="button add-onlus" onclick="appendToTable();">Add</a>';
+		html += '<a class="button" onclick="removeFromTable($(this))">Remove</a>';
+		html += '</td>';
 		html += '</tr>';
 		tbody.append(html);
 		new_row++;
+	}
+	
+	function removeFromTable(el){
+		var row = el.parent().parent();
+		row.remove();
 	}
 </script>
 
