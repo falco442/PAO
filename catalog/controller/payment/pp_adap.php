@@ -100,8 +100,24 @@ class ControllerPaymentPpAdap extends Controller {
 		}
 
 		$this->load->model('checkout/order');
+		$this->load->model('account/order');
 
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+		$orderProducts = $this->model_account_order->getOrderProducts($this->session->data['order_id']);
+		
+		$onlusId = $this->request->post['onlus_id'];
+		if(isset($orderProducts) && !empty($orderProducts)){
+			foreach($orderProducts as $p){
+				$totalQuantity += $p['quantity'];
+			}
+		}
+		$totalAmountToOnlus = $this->currency->convert(
+			$this->config->get('pp_adap_onlus_amount'),
+			$this->config->get('pp_adap_currency_code'),
+			$order_info['currency_code']
+		);
+		if(isset($totalQuantity))
+			$totalAmountToOnlus = $totalAmountToOnlus * $totalQuantity;
 
 		$request  = 'METHOD=DoDirectPayment';
 		$request .= '&VERSION=51.0';
