@@ -39,6 +39,7 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->data['entry_password'] = $this->language->get('entry_password');
 		$this->data['entry_signature'] = $this->language->get('entry_signature');
 		$this->data['entry_onlus_amount'] = $this->language->get('entry_onlus_amount');
+		$this->data['entry_currency_code'] = $this->language->get('entry_currency_code');
 		$this->data['entry_test'] = $this->language->get('entry_test');
 		$this->data['entry_transaction'] = $this->language->get('entry_transaction');
 		$this->data['entry_total'] = $this->language->get('entry_total');	
@@ -76,6 +77,12 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['error_onlus_amount'] = $this->error['onlus_amount'];
 		} else {
 			$this->data['error_onlus_amount'] = '';
+		}
+		
+		if (isset($this->error['currency_code'])) {
+			$this->data['error_currency_code'] = $this->error['currency_code'];
+		} else {
+			$this->data['error_currency_code'] = '';
 		}
 		
 		if (isset($this->error['signature'])) {
@@ -132,6 +139,12 @@ class ControllerPaymentPpAdap extends Controller {
 		} else {
 			$this->data['pp_adap_onlus_amount'] = $this->config->get('pp_adap_onlus_amount');
 		}
+		
+		if (isset($this->request->post['pp_adap_currency_code'])) {
+			$this->data['pp_adap_currency_code'] = $this->request->post['pp_adap_currency_code'];
+		} else {
+			$this->data['pp_adap_currency_code'] = $this->config->get('pp_adap_currency_code');
+		}
 
 		if (isset($this->request->post['pp_adap_test'])) {
 			$this->data['pp_adap_test'] = $this->request->post['pp_adap_test'];
@@ -183,6 +196,9 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['pp_adap_sort_order'] = $this->config->get('pp_adap_sort_order');
 		}
 		
+		$this->load->model('localisation/currency');
+		$this->data['currencies'] = $this->model_localisation_currency->getCurrencies();
+		
 
 		$this->data['onlus'] = array();
 		$this->data['onlus'] = $this->model_onlus_onlus->getAllOnlus();
@@ -216,6 +232,10 @@ class ControllerPaymentPpAdap extends Controller {
 		
 		if (!$this->request->post['pp_adap_onlus_amount']) {
 			$this->error['onlus_amount'] = $this->language->get('error_onlus_amount');
+		}
+		
+		if (!$this->request->post['pp_adap_currency_code']) {
+			$this->error['currency_code'] = $this->language->get('error_currency_code');
 		}
 
 		if (!$this->error) {

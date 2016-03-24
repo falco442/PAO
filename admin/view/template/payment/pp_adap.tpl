@@ -121,6 +121,19 @@
 			</tr>
 			
 			
+			<tr>
+				<td><span class="required">*</span> <?php echo $entry_currency_code; ?></td>
+				<td><select name="pp_adap_currency_code">
+					<?php foreach($currencies as $currency): ?>
+					<option value="<?php echo $currency['code']; ?>" <?php if($pp_adap_currency_code==$currency['code']) echo 'selected' ?> ><?php echo $currency['code']; ?></option>
+					<?php endforeach; ?>
+				</select>
+				<?php if ($error_currency_code) { ?>
+				<span class="error"><?php echo $error_currency_code; ?></span>
+				<?php } ?></td>
+			</tr>
+			
+			
 			</table>
 			
 			<table class="list" id="onlus">

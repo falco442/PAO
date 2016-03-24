@@ -22,6 +22,7 @@ $_['entry_status']       = 'Status:';
 $_['entry_sort_order']   = 'Sort Order:';
 
 $_['entry_onlus_amount']   = 'Onlus amount:';
+$_['entry_currency_code']  = 'Currency:';
 
 // Error
 $_['error_permission']   = 'Warning: You do not have permission to modify payment PayPal Website Payment Pro Checkout!';
@@ -29,6 +30,7 @@ $_['error_username']     = 'API Username Required!';
 $_['error_password']     = 'API Password Required!'; 
 $_['error_signature']    = 'API Signature Required!'; 
 $_['error_onlus_amount'] = 'Onlus amount Required!'; 
+$_['error_currency_code']= 'Currency Required!'; 
 
 $_['text_onlus']		= 'Onlus name';
 $_['text_onlus_paypal_id']	= 'Paypal ID';
