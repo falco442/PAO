@@ -14,7 +14,16 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->data['entry_cc_expire_date'] = $this->language->get('entry_cc_expire_date');
 		$this->data['entry_cc_cvv2'] = $this->language->get('entry_cc_cvv2');
 		$this->data['entry_cc_issue'] = $this->language->get('entry_cc_issue');
-		$this->data['entry_choose_onlus'] = $this->language->get('entry_choose_onlus');
+		$this->data['entry_choose_onlus'] = sprintf(
+			$this->language->get('entry_choose_onlus'),
+			$this->currency->format(
+				$this->config->get('pp_adap_onlus_amount'),
+				$this->config->get('pp_adap_currency_code'),
+				false,
+				true
+			)
+		);
+		
 		$this->data['entry_form_onlus_title'] = $this->language->get('entry_form_onlus_title');
 
 		$this->data['button_confirm'] = $this->language->get('button_confirm');
@@ -106,18 +115,31 @@ class ControllerPaymentPpAdap extends Controller {
 		$orderProducts = $this->model_account_order->getOrderProducts($this->session->data['order_id']);
 		
 		$onlusId = $this->request->post['onlus_id'];
+		$totalQuantity = 0;
 		if(isset($orderProducts) && !empty($orderProducts)){
 			foreach($orderProducts as $p){
 				$totalQuantity += $p['quantity'];
 			}
 		}
-		$totalAmountToOnlus = $this->currency->convert(
-			$this->config->get('pp_adap_onlus_amount'),
-			$this->config->get('pp_adap_currency_code'),
-			$order_info['currency_code']
+
+		$totalAmountToOnlus = $this->currency->format(
+			$this->currency->convert(
+				$this->config->get('pp_adap_onlus_amount'),
+				$this->config->get('pp_adap_currency_code'),
+				$order_info['currency_code']
+			),
+			$order_info['currency_code'],
+			false,
+			false
 		);
-		if(isset($totalQuantity))
-			$totalAmountToOnlus = $totalAmountToOnlus * $totalQuantity;
+		if(!isset($totalQuantity))
+			$totalQuantity = 1;
+			
+		$totalAmountToOnlus = $totalAmountToOnlus * $totalQuantity;
+// 		$response = array(compact('totalAmountToOnlus','orderProducts','order_info','onlusId'));
+		$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 200 OK');
+		$this->response->setOutput(json_encode($response));
+		return;
 
 		$request  = 'METHOD=DoDirectPayment';
 		$request .= '&VERSION=51.0';

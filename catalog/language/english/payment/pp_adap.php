@@ -14,5 +14,5 @@ $_['entry_cc_expire_date'] = 'Card Expiry Date:';
 $_['entry_cc_cvv2']        = 'Card Security Code (CVV2):';
 $_['entry_cc_issue']       = 'Card Issue Number:';
 $_['entry_form_onlus_title']   = 'Declare your onlus payment:';
-$_['entry_choose_onlus']   = 'Choose onlus which send amount to:';
+$_['entry_choose_onlus']   = 'You will give %s to an onlus of your choice for each product you buy';
 ?>

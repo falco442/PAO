@@ -64,7 +64,7 @@
 	<h3><?php echo $entry_form_onlus_title ?></h3>
 	<table class="form">
 		<tr>
-			<td><?php echo $entry_choose_onlus; ?></td>
+			<td><?php echo sprintf($entry_choose_onlus); ?></td>
 			<td>
 				<select name="onlus_id">
 				<?php foreach($onlus as $o): ?>
@@ -92,9 +92,10 @@ $('#button-confirm').bind('click', function() {
 			$('#button-confirm').attr('disabled', true);
 			$('#payment').before('<div class="attention"><img src="catalog/view/theme/default/image/loading.gif" alt="" /> <?php echo $text_wait; ?></div>');
 		},
-		complete: function() {
+		complete: function(data) {
 			$('#button-confirm').attr('disabled', false);
 			$('.attention').remove();
+			console.log(jQuery.parseJSON(data.responseText));
 		},				
 		success: function(json) {
 			if (json['error']) {
