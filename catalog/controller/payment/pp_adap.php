@@ -100,6 +100,27 @@ class ControllerPaymentPpAdap extends Controller {
 
 		$this->render();		
 	}
+	
+	public function getKey(){
+		if (!$this->config->get('pp_adap_test')) {
+			$url = 'https://api.paypal.com';
+		} else {
+			$url = 'https://api.sandbox.paypal.com';
+		}
+		$sandbox_account = 'pagamenti-facilitator@hosmesso.eu';
+		$client_id = 'Afzny8sw_gDBC19lKcWPsGq1Fr-_ZIoj_R9n1WCCWwcI7HVs2oE4Y2-qLJIUWEzEQKWVwgw4-tj9kdVe';
+		$secret = 'EJ8h4JS9vk6ms8lKK9LCooVQSMN2eRm19Hm8UnD7kGzDDc9lcQJENA3y92aWcW5B6jQ0HRNQ_HCb_RQO';
+		$url .= '/v1/oauth2/token';
+		$curl = curl_init($url);
+		curl_setopt($curl,CURLOPT_POSTFIELDS,"grant_type=client_credentials");
+		curl_setopt($curl,CURLOPT_USERAGENT,"$client_id:$secret");
+		curl_setopt($curl,CURLOPT_HTTPHEADER,array("Accept: application/json","Accept-Language: en_US"));
+		$response = json_decode(curl_exec($curl));
+		curl_close($curl);
+		if(isset($response['access_token']))
+			return $response['access_token'];
+		return false;
+	}
 
 	public function send() {
 		if (!$this->config->get('pp_adap_transaction')) {
