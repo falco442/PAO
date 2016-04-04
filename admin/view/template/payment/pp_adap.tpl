@@ -38,6 +38,13 @@
 				<?php } ?></td>
 			</tr>
 			<tr>
+				<td><span class="required">*</span> <?php echo $entry_paypal_id; ?></td>
+				<td><input type="text" name="pp_adap_paypal_id" value="<?php echo $pp_adap_paypal_id; ?>" />
+				<?php if ($error_paypal_id) { ?>
+				<span class="error"><?php echo $error_paypal_id; ?></span>
+				<?php } ?></td>
+			</tr>
+			<tr>
 				<td><?php echo $entry_test; ?></td>
 				<td><?php if ($pp_adap_test) { ?>
 				<input type="radio" name="pp_adap_test" value="1" checked="checked" />

@@ -84,7 +84,7 @@
 <script type="text/javascript">
 $('#button-confirm').bind('click', function() {
 	$.ajax({
-		url: 'index.php?route=payment/pp_adap/send',
+		url: 'index.php?route=payment/pp_adap/setExpressCheckout',
 		type: 'post',
 		data: $('#payment :input'),
 		dataType: 'json',		
@@ -96,15 +96,17 @@ $('#button-confirm').bind('click', function() {
 			$('#button-confirm').attr('disabled', false);
 			$('.attention').remove();
 			console.log(jQuery.parseJSON(data.responseText));
-		},				
+		},
 		success: function(json) {
-			if (json['error']) {
-				alert(json['error']);
-			}
-
-			if (json['success']) {
-				location = json['success'];
-			}
+			console.log(json);
+			window.location.replace(json.url);
+// 			if (json['error']) {
+// 				alert(json['error']);
+// 			}
+// 
+// 			if (json['success']) {
+// 				location = json['success'];
+// 			}
 		}
 	});
 });

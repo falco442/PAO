@@ -38,6 +38,7 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->data['entry_username'] = $this->language->get('entry_username');
 		$this->data['entry_password'] = $this->language->get('entry_password');
 		$this->data['entry_signature'] = $this->language->get('entry_signature');
+		$this->data['entry_paypal_id'] = $this->language->get('entry_paypal_id');
 		$this->data['entry_onlus_amount'] = $this->language->get('entry_onlus_amount');
 		$this->data['entry_currency_code'] = $this->language->get('entry_currency_code');
 		$this->data['entry_test'] = $this->language->get('entry_test');
@@ -90,6 +91,12 @@ class ControllerPaymentPpAdap extends Controller {
 		} else {
 			$this->data['error_signature'] = '';
 		}
+		
+		if (isset($this->error['paypal_id'])) {
+			$this->data['error_paypal_id'] = $this->error['paypal_id'];
+		} else {
+			$this->data['error_paypal_id'] = '';
+		}
 
 		$this->data['breadcrumbs'] = array();
 		$this->data['token'] = $this->session->data['token'];
@@ -132,6 +139,12 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->data['pp_adap_signature'] = $this->request->post['pp_adap_signature'];
 		} else {
 			$this->data['pp_adap_signature'] = $this->config->get('pp_adap_signature');
+		}
+		
+		if (isset($this->request->post['pp_adap_paypal_id'])) {
+			$this->data['pp_adap_paypal_id'] = $this->request->post['pp_adap_paypal_id'];
+		} else {
+			$this->data['pp_adap_paypal_id'] = $this->config->get('pp_adap_paypal_id');
 		}
 		
 		if (isset($this->request->post['pp_adap_onlus_amount'])) {
@@ -228,6 +241,10 @@ class ControllerPaymentPpAdap extends Controller {
 
 		if (!$this->request->post['pp_adap_signature']) {
 			$this->error['signature'] = $this->language->get('error_signature');
+		}
+		
+		if (!$this->request->post['pp_adap_paypal_id']) {
+			$this->error['paypal_id'] = $this->language->get('error_paypal_id');
 		}
 		
 		if (!$this->request->post['pp_adap_onlus_amount']) {

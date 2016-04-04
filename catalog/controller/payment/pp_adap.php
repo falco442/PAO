@@ -113,9 +113,15 @@ class ControllerPaymentPpAdap extends Controller {
 		$url .= '/v1/oauth2/token';
 		$curl = curl_init($url);
 		curl_setopt($curl,CURLOPT_POSTFIELDS,"grant_type=client_credentials");
-		curl_setopt($curl,CURLOPT_USERAGENT,"$client_id:$secret");
-		curl_setopt($curl,CURLOPT_HTTPHEADER,array("Accept: application/json","Accept-Language: en_US"));
-		$response = json_decode(curl_exec($curl));
+		curl_setopt($curl,CURLOPT_USERPWD,"$client_id:$secret");
+		curl_setopt($curl,CURLOPT_HTTPHEADER,array(
+			"Accept: application/json",
+			"Accept-Language: en_US",
+			"application/x-www-form-urlencoded"
+		));
+		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($curl,CURLOPT_HTTPAUTH,CURLAUTH_BASIC);
+		$response = curl_exec($curl);
 		curl_close($curl);
 		if(isset($response['access_token']))
 			return $response['access_token'];
@@ -263,5 +269,155 @@ class ControllerPaymentPpAdap extends Controller {
 
 		$this->response->setOutput(json_encode($json));
 	}
+	
+	
+	function setExpressCheckout(){
+	
+		if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+			$server = $this->config->get('config_ssl');
+		} else {
+			$server = $this->config->get('config_url');
+		}
+	
+		$this->load->model('checkout/order');
+		$this->load->model('account/order');
+		$this->load->model('onlus/onlus');
+
+		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+		$orderProducts = $this->model_account_order->getOrderProducts($this->session->data['order_id']);
+		$onlus = $this->model_onlus_onlus->getOnlus($this->request->post['onlus_id']);
+		
+		$totalQuantity = 0;
+		if(isset($orderProducts) && !empty($orderProducts)){
+			foreach($orderProducts as $p){
+				$totalQuantity += $p['quantity'];
+			}
+		}
+
+		$onlusAmount = $this->currency->convert(
+			$this->config->get('pp_adap_onlus_amount'),
+			$this->config->get('pp_adap_currency_code'),
+			$order_info['currency_code']
+		);
+		$totalAmountToOnlus = $this->currency->format(
+			$onlusAmount,
+			$order_info['currency_code'],
+			false,
+			false
+		);
+		if(!isset($totalQuantity))
+			$totalQuantity = 1;
+	
+	
+		if (!$this->config->get('pp_adap_test')) {
+			$url = 'https://api-3t.paypal.com/nvp';
+		} else {
+			$url = 'https://api-3t.sandbox.paypal.com/nvp';
+		}
+		
+		$header = array(
+			"X-PAYPAL-RESPONSE-DATA-FORMAT: JSON",
+			"application/x-www-form-urlencoded",
+		);
+		
+		$amount = $this->currency->format($order_info['total']-$onlusAmount, $order_info['currency_code'], false, false);
+		
+		
+		$receivers = array(
+			array(
+				'SELLERPAYPALACCOUNTID'=>$this->config->get('pp_adap_paypal_id'),
+				'DESC'=>'HOSMESSO',
+				'AMT'=>$amount,
+				'PAYMENTREQUESTID'=>'CART'.$order_info['order_id'].'-PAYMENT0'
+			),
+			array(
+				'SELLERPAYPALACCOUNTID'=>$onlus['paypal_id'],
+				'DESC'=>$onlus['name'],
+				'AMT'=>$totalAmountToOnlus,
+				'PAYMENTREQUESTID'=>'CART'.$order_info['order_id'].'-PAYMENT1'
+			)
+		);
+		
+		$returnUrl = $server.'index.php?route=pp_adap/getExpressCheckoutDetails';
+		$cancelUrl = $server.'index.php?route=checkout/checkout';
+		
+		$data = array(
+			'USER'=>urlencode($this->config->get('pp_adap_username')),
+			'PWD'=>urlencode($this->config->get('pp_adap_password')),
+			'SIGNATURE'=>urlencode($this->config->get('pp_adap_signature')),
+			'METHOD'=>'SetExpressCheckout',
+			'RETURNURL'=>$returnUrl,
+			'CANCELURL'=>$cancelUrl,
+			'VERSION'=>93,
+			'PAYMENTREQUEST_0_CURRENCYCODE'=>$order_info['currency_code'],
+			'PAYMENTREQUEST_1_CURRENCYCODE'=>$order_info['currency_code'],
+			'REQCONFIRMSHIPPING'=>0,
+			'NOSHIPPING'=>1,
+		);
+		
+		if($this->config->get('config_logo')){
+			$data['LOGOIMG'] = $server.'image/'.$this->config->get('config_logo');
+		}
+		
+		foreach($receivers as $key=>$receiver){
+			foreach($receiver as $field=>$value){
+				$data['PAYMENTREQUEST_'.$key.'_'.$field] = $value;
+			}
+		}
+		
+		$curl = curl_init($url);
+		curl_setopt($curl,CURLOPT_HTTPHEADER,$header);
+		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($curl,CURLOPT_POSTFIELDS,http_build_query($data));
+		$response = curl_exec($curl);
+		curl_close($curl);
+		
+		$array = array();
+		parse_str(urldecode($response),$array);
+		
+		if(isset($array['ACK']) && $array['ACK']=='Success'){
+			$url = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
+			$return = array('url'=>$url.$array['TOKEN']);
+			$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 200 OK');
+			$this->response->setOutput(json_encode($return));
+			return;
+		}
+		else
+			$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 500 Internal Server Error');
+		
+		$this->response->setOutput(json_encode(compact('array','data')));
+	}
+	
+	function getExpressCheckoutDetails(){
+	
+		if (!$this->config->get('pp_adap_test')) {
+			$curl = curl_init('https://api-3t.paypal.com/nvp');
+		} else {
+			$curl = curl_init('https://api-3t.sandbox.paypal.com/nvp');
+		}
+	
+		if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+			$server = $this->config->get('config_ssl');
+		} else {
+			$server = $this->config->get('config_url');
+		}
+	
+		$token = $this->request->get['token'];
+		
+		$data = array(
+			'USER'		=>urlencode($this->config->get('pp_adap_username')),
+			'PWD'		=>urlencode($this->config->get('pp_adap_password')),
+			'SIGNATURE'	=>urlencode($this->config->get('pp_adap_signature')),
+			'METHOD'	=>'GetExpressCheckoutDetails',
+			'VERSION'	=>93,
+			'TOKEN'		=>$token
+		);
+		
+		$header = array(
+			"X-PAYPAL-RESPONSE-DATA-FORMAT: JSON",
+			"application/x-www-form-urlencoded",
+		);
+	}
+
 }
 ?>
