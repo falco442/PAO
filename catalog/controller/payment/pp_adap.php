@@ -101,175 +101,7 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->render();		
 	}
 	
-	public function getKey(){
-		if (!$this->config->get('pp_adap_test')) {
-			$url = 'https://api.paypal.com';
-		} else {
-			$url = 'https://api.sandbox.paypal.com';
-		}
-		$sandbox_account = 'pagamenti-facilitator@hosmesso.eu';
-		$client_id = 'Afzny8sw_gDBC19lKcWPsGq1Fr-_ZIoj_R9n1WCCWwcI7HVs2oE4Y2-qLJIUWEzEQKWVwgw4-tj9kdVe';
-		$secret = 'EJ8h4JS9vk6ms8lKK9LCooVQSMN2eRm19Hm8UnD7kGzDDc9lcQJENA3y92aWcW5B6jQ0HRNQ_HCb_RQO';
-		$url .= '/v1/oauth2/token';
-		$curl = curl_init($url);
-		curl_setopt($curl,CURLOPT_POSTFIELDS,"grant_type=client_credentials");
-		curl_setopt($curl,CURLOPT_USERPWD,"$client_id:$secret");
-		curl_setopt($curl,CURLOPT_HTTPHEADER,array(
-			"Accept: application/json",
-			"Accept-Language: en_US",
-			"application/x-www-form-urlencoded"
-		));
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-		curl_setopt($curl,CURLOPT_HTTPAUTH,CURLAUTH_BASIC);
-		$response = curl_exec($curl);
-		curl_close($curl);
-		if(isset($response['access_token']))
-			return $response['access_token'];
-		return false;
-	}
 
-	public function send() {
-		if (!$this->config->get('pp_adap_transaction')) {
-			$payment_type = 'Authorization';	
-		} else {
-			$payment_type = 'Sale';
-		}
-
-		$this->load->model('checkout/order');
-		$this->load->model('account/order');
-
-		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-		$orderProducts = $this->model_account_order->getOrderProducts($this->session->data['order_id']);
-		
-		$onlusId = $this->request->post['onlus_id'];
-		$totalQuantity = 0;
-		if(isset($orderProducts) && !empty($orderProducts)){
-			foreach($orderProducts as $p){
-				$totalQuantity += $p['quantity'];
-			}
-		}
-
-		$totalAmountToOnlus = $this->currency->format(
-			$this->currency->convert(
-				$this->config->get('pp_adap_onlus_amount'),
-				$this->config->get('pp_adap_currency_code'),
-				$order_info['currency_code']
-			),
-			$order_info['currency_code'],
-			false,
-			false
-		);
-		if(!isset($totalQuantity))
-			$totalQuantity = 1;
-			
-		$totalAmountToOnlus = $totalAmountToOnlus * $totalQuantity;
-// 		$response = array(compact('totalAmountToOnlus','orderProducts','order_info','onlusId'));
-		$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 200 OK');
-		$this->response->setOutput(json_encode($response));
-		return;
-
-		$request  = 'METHOD=DoDirectPayment';
-		$request .= '&VERSION=51.0';
-		$request .= '&USER=' . urlencode($this->config->get('pp_adap_username'));
-		$request .= '&PWD=' . urlencode($this->config->get('pp_adap_password'));
-		$request .= '&SIGNATURE=' . urlencode($this->config->get('pp_adap_signature'));
-		$request .= '&CUSTREF=' . (int)$order_info['order_id'];
-		$request .= '&PAYMENTACTION=' . $payment_type;
-		$request .= '&AMT=' . $this->currency->format($order_info['total'], $order_info['currency_code'], false, false);
-		$request .= '&CREDITCARDTYPE=' . $this->request->post['cc_type'];
-		$request .= '&ACCT=' . urlencode(str_replace(' ', '', $this->request->post['cc_number']));
-		$request .= '&CARDSTART=' . urlencode($this->request->post['cc_start_date_month'] . $this->request->post['cc_start_date_year']);
-		$request .= '&EXPDATE=' . urlencode($this->request->post['cc_expire_date_month'] . $this->request->post['cc_expire_date_year']);
-		$request .= '&CVV2=' . urlencode($this->request->post['cc_cvv2']);
-
-		if ($this->request->post['cc_type'] == 'SWITCH' || $this->request->post['cc_type'] == 'SOLO') { 
-			$request .= '&CARDISSUE=' . urlencode($this->request->post['cc_issue']);
-		}
-
-		$request .= '&FIRSTNAME=' . urlencode($order_info['payment_firstname']);
-		$request .= '&LASTNAME=' . urlencode($order_info['payment_lastname']);
-		$request .= '&EMAIL=' . urlencode($order_info['email']);
-		$request .= '&PHONENUM=' . urlencode($order_info['telephone']);
-		$request .= '&IPADDRESS=' . urlencode($this->request->server['REMOTE_ADDR']);
-		$request .= '&STREET=' . urlencode($order_info['payment_address_1']);
-		$request .= '&CITY=' . urlencode($order_info['payment_city']);
-		$request .= '&STATE=' . urlencode(($order_info['payment_iso_code_2'] != 'US') ? $order_info['payment_zone'] : $order_info['payment_zone_code']);
-		$request .= '&ZIP=' . urlencode($order_info['payment_postcode']);
-		$request .= '&COUNTRYCODE=' . urlencode($order_info['payment_iso_code_2']);
-		$request .= '&CURRENCYCODE=' . urlencode($order_info['currency_code']);
-
-		if ($this->cart->hasShipping()) {
-			$request .= '&SHIPTONAME=' . urlencode($order_info['shipping_firstname'] . ' ' . $order_info['shipping_lastname']);
-			$request .= '&SHIPTOSTREET=' . urlencode($order_info['shipping_address_1']);
-			$request .= '&SHIPTOCITY=' . urlencode($order_info['shipping_city']);
-			$request .= '&SHIPTOSTATE=' . urlencode(($order_info['shipping_iso_code_2'] != 'US') ? $order_info['shipping_zone'] : $order_info['shipping_zone_code']);
-			$request .= '&SHIPTOCOUNTRYCODE=' . urlencode($order_info['shipping_iso_code_2']);
-			$request .= '&SHIPTOZIP=' . urlencode($order_info['shipping_postcode']);
-		} else {
-			$request .= '&SHIPTONAME=' . urlencode($order_info['payment_firstname'] . ' ' . $order_info['payment_lastname']);
-			$request .= '&SHIPTOSTREET=' . urlencode($order_info['payment_address_1']);
-			$request .= '&SHIPTOCITY=' . urlencode($order_info['payment_city']);
-			$request .= '&SHIPTOSTATE=' . urlencode(($order_info['payment_iso_code_2'] != 'US') ? $order_info['payment_zone'] : $order_info['payment_zone_code']);
-			$request .= '&SHIPTOCOUNTRYCODE=' . urlencode($order_info['payment_iso_code_2']);
-			$request .= '&SHIPTOZIP=' . urlencode($order_info['payment_postcode']);			
-		}		
-
-		if (!$this->config->get('pp_adap_test')) {
-			$curl = curl_init('https://api-3t.paypal.com/nvp');
-		} else {
-			$curl = curl_init('https://api-3t.sandbox.paypal.com/nvp');
-		}
-
-		curl_setopt($curl, CURLOPT_PORT, 443);
-		curl_setopt($curl, CURLOPT_HEADER, 0);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_FORBID_REUSE, 1);
-		curl_setopt($curl, CURLOPT_FRESH_CONNECT, 1);
-		curl_setopt($curl, CURLOPT_POST, 1);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
-
-		$response = curl_exec($curl);
-
-		curl_close($curl);
-
-		if (!$response) {
-			$this->log->write('DoDirectPayment failed: ' . curl_error($curl) . '(' . curl_errno($curl) . ')');
-		}
-
-		$response_info = array();
-
-		parse_str($response, $response_info);
-
-		$json = array();
-
-		if (($response_info['ACK'] == 'Success') || ($response_info['ACK'] == 'SuccessWithWarning')) {
-			$this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('config_order_status_id'));
-
-			$message = '';
-
-			if (isset($response_info['AVSCODE'])) {
-				$message .= 'AVSCODE: ' . $response_info['AVSCODE'] . "\n";
-			}
-
-			if (isset($response_info['CVV2MATCH'])) {
-				$message .= 'CVV2MATCH: ' . $response_info['CVV2MATCH'] . "\n";
-			}
-
-			if (isset($response_info['TRANSACTIONID'])) {
-				$message .= 'TRANSACTIONID: ' . $response_info['TRANSACTIONID'] . "\n";
-			}
-
-			$this->model_checkout_order->update($this->session->data['order_id'], $this->config->get('pp_adap_order_status_id'), $message, false);
-
-			$json['success'] = $this->url->link('checkout/success');
-		} else {
-			$json['error'] = $response_info['L_LONGMESSAGE0'];
-		}
-
-		$this->response->setOutput(json_encode($json));
-	}
-	
 	
 	function setExpressCheckout(){
 	
@@ -338,7 +170,7 @@ class ControllerPaymentPpAdap extends Controller {
 			)
 		);
 		
-		$returnUrl = $server.'index.php?route=pp_adap/getExpressCheckoutDetails';
+		$returnUrl = $server.'index.php?route=payment/pp_adap/commit';
 		$cancelUrl = $server.'index.php?route=checkout/checkout';
 		
 		$data = array(
@@ -364,6 +196,7 @@ class ControllerPaymentPpAdap extends Controller {
 				$data['PAYMENTREQUEST_'.$key.'_'.$field] = $value;
 			}
 		}
+		$this->session->data['paypal_data'] = $data;
 		
 		$curl = curl_init($url);
 		curl_setopt($curl,CURLOPT_HTTPHEADER,$header);
@@ -388,36 +221,55 @@ class ControllerPaymentPpAdap extends Controller {
 		$this->response->setOutput(json_encode(compact('array','data')));
 	}
 	
-	function getExpressCheckoutDetails(){
-	
+
+	function commit(){
 		if (!$this->config->get('pp_adap_test')) {
-			$curl = curl_init('https://api-3t.paypal.com/nvp');
+			$url = 'https://api-3t.paypal.com/nvp';
 		} else {
-			$curl = curl_init('https://api-3t.sandbox.paypal.com/nvp');
+			$url = 'https://api-3t.sandbox.paypal.com/nvp';
 		}
-	
-		if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
-			$server = $this->config->get('config_ssl');
-		} else {
-			$server = $this->config->get('config_url');
-		}
-	
-		$token = $this->request->get['token'];
-		
-		$data = array(
-			'USER'		=>urlencode($this->config->get('pp_adap_username')),
-			'PWD'		=>urlencode($this->config->get('pp_adap_password')),
-			'SIGNATURE'	=>urlencode($this->config->get('pp_adap_signature')),
-			'METHOD'	=>'GetExpressCheckoutDetails',
-			'VERSION'	=>93,
-			'TOKEN'		=>$token
-		);
 		
 		$header = array(
-			"X-PAYPAL-RESPONSE-DATA-FORMAT: JSON",
 			"application/x-www-form-urlencoded",
 		);
-	}
+		
+		$token = $this->request->get['token'];
+		$payerId = $this->request->get['PayerID'];
+		
+		$data = $this->session->data['paypal_data'];
+		unset($this->session->data['paypal_data']);
+		
+		$data['PAYERID'] = $payerId;
+		$data['TOKEN'] = $token;
+		$data['METHOD'] = 'DoExpressCheckoutPayment';
+		
+		$curl = curl_init($url);
+		curl_setopt($curl,CURLOPT_HTTPHEADER,$header);
+		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($curl,CURLOPT_POSTFIELDS,http_build_query($data));
+		$response = curl_exec($curl);
+		curl_close($curl);
+		
+		$array = array();
+		parse_str(urldecode($response),$array);
+		
+		if(isset($array['ACK']) && $array['ACK']=='Success'){
+		
+			$message = '';
+			$this->load->model('checkout/order');
+			$this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('config_order_status_id'));
 
+			if (isset($response['TRANSACTIONID'])) {
+				$message .= 'TRANSACTIONID: ' . $response['TRANSACTIONID'] . "\n";
+			}
+
+			$this->model_checkout_order->update($this->session->data['order_id'], $this->config->get('pp_adap_order_status_id'), $message, false);
+		
+			$this->redirect($this->url->link('checkout/success'));
+		}
+		else{
+			die(print_r($array));
+		}
+	}
 }
 ?>
