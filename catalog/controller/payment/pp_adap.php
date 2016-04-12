@@ -160,13 +160,15 @@ class ControllerPaymentPpAdap extends Controller {
 				'SELLERPAYPALACCOUNTID'=>$this->config->get('pp_adap_paypal_id'),
 				'DESC'=>'HOSMESSO',
 				'AMT'=>$amount,
-				'PAYMENTREQUESTID'=>'CART'.$order_info['order_id'].'-PAYMENT0'
+				'PAYMENTREQUESTID'=>'CART'.$order_info['order_id'].'-PAYMENT0',
+				'PAYMENTACTION'=>'Sale'
 			),
 			array(
 				'SELLERPAYPALACCOUNTID'=>$onlus['paypal_id'],
 				'DESC'=>$onlus['name'],
 				'AMT'=>$totalAmountToOnlus,
-				'PAYMENTREQUESTID'=>'CART'.$order_info['order_id'].'-PAYMENT1'
+				'PAYMENTREQUESTID'=>'CART'.$order_info['order_id'].'-PAYMENT1',
+				'PAYMENTACTION'=>'Sale'
 			)
 		);
 		
