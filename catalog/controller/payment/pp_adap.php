@@ -125,20 +125,21 @@ class ControllerPaymentPpAdap extends Controller {
 				$totalQuantity += $p['quantity'];
 			}
 		}
+		if(!isset($totalQuantity) || empty($totalQuantity))
+			$totalQuantity = 1;
 
 		$onlusAmount = $this->currency->convert(
 			$this->config->get('pp_adap_onlus_amount'),
 			$this->config->get('pp_adap_currency_code'),
 			$order_info['currency_code']
 		);
+		$onlusAmount = $onlusAmount * $totalQuantity;
 		$totalAmountToOnlus = $this->currency->format(
 			$onlusAmount,
 			$order_info['currency_code'],
 			false,
 			false
 		);
-		if(!isset($totalQuantity))
-			$totalQuantity = 1;
 	
 	
 		if (!$this->config->get('pp_adap_test')) {
