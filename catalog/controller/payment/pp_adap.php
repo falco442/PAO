@@ -271,7 +271,8 @@ class ControllerPaymentPpAdap extends Controller {
 			$this->redirect($this->url->link('checkout/success'));
 		}
 		else{
-			die(print_r($array));
+			$json['error'] = $array['L_LONGMESSAGE0'];
+			$this->response->setOutput(json_encode($json));
 		}
 	}
 }
