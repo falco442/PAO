@@ -2,7 +2,7 @@
 <div class="content" id="payment">
 
 	<?php if(isset($onlus) && !empty($onlus)){ ?>
-	<table class="form">
+	<table class="form" id="pp_adap_complete">
 		<tr>
 			<td colspan="3"><?php echo sprintf($entry_choose_onlus); ?></td>
 			<td>
@@ -35,7 +35,20 @@ $('#button-confirm').bind('click', function() {
 		complete: function(data) {
 			$('#button-confirm').attr('disabled', false);
 			$('.attention').remove();
-			console.log(jQuery.parseJSON(data.responseText));
+// 			console.log(jQuery.parseJSON(data.responseText));
+		},
+		error: function(data){
+			var reason = data.responseText.array;
+// 			var response = JSON.stringify(jQuery.parseJSON(data.responseText),null,2);
+			var response = jQuery.parseJSON(data.responseText);
+			for(var i in response){
+				for(var key in response[i]){
+					if(key=='L_LONGMESSAGE0'){
+						var reason = response[i][key];
+					}
+				}
+			}
+			$('#pp_adap_complete').append('<tr><td colspan="4" style="color:red"><div>Error:</div><div><pre>'+reason+'</pre></div></td></tr>');
 		},
 		success: function(json) {
 			console.log(json);
