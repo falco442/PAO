@@ -4,7 +4,7 @@
 	<?php if(isset($onlus) && !empty($onlus)){ ?>
 	<table class="form">
 		<tr>
-			<td><?php echo sprintf($entry_choose_onlus); ?></td>
+			<td colspan="3"><?php echo sprintf($entry_choose_onlus); ?></td>
 			<td>
 				<select name="onlus_id">
 				<?php foreach($onlus as $o): ?>
