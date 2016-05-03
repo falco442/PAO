@@ -1,8 +1,7 @@
-<h2><?php echo $text_credit_card; ?></h2>
+<h2><?php echo $entry_form_onlus_title; ?></h2>
 <div class="content" id="payment">
 
 	<?php if(isset($onlus) && !empty($onlus)){ ?>
-	<h3><?php echo $entry_form_onlus_title ?></h3>
 	<table class="form">
 		<tr>
 			<td><?php echo sprintf($entry_choose_onlus); ?></td>
