@@ -35,7 +35,7 @@ $('#button-confirm').bind('click', function() {
 		complete: function(data) {
 			$('#button-confirm').attr('disabled', false);
 			$('.attention').remove();
-// 			console.log(jQuery.parseJSON(data.responseText));
+			console.log(jQuery.parseJSON(data.responseText));
 		},
 		error: function(data){
 			var reason = data.responseText.array;
@@ -43,12 +43,15 @@ $('#button-confirm').bind('click', function() {
 			var response = jQuery.parseJSON(data.responseText);
 			for(var i in response){
 				for(var key in response[i]){
+					if(key=='L_ERRORCODE0'){
+						var code = response[i][key];
+					}
 					if(key=='L_LONGMESSAGE0'){
 						var reason = response[i][key];
 					}
 				}
 			}
-			$('#pp_adap_complete').append('<tr><td colspan="4" style="color:red"><div>Error:</div><div><pre>'+reason+'</pre></div></td></tr>');
+			$('#pp_adap_complete').append('<tr><td colspan="4" style="color:red"><div>Error '+code+':</div><div><pre>'+reason+'</pre></div></td></tr>');
 		},
 		success: function(json) {
 			console.log(json);
