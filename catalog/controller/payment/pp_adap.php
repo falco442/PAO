@@ -190,9 +190,9 @@ class ControllerPaymentPpAdap extends Controller {
 			'NOSHIPPING'=>1,
 		);
 		
-		if($this->config->get('config_logo')){
-			$data['LOGOIMG'] = $server.'image/'.$this->config->get('config_logo');
-		}
+// 		if($this->config->get('config_logo')){
+// 			$data['LOGOIMG'] = $server.'image/'.$this->config->get('config_logo');
+// 		}
 		
 		foreach($receivers as $key=>$receiver){
 			foreach($receiver as $field=>$value){
