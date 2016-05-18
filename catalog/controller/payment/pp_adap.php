@@ -212,7 +212,11 @@ class ControllerPaymentPpAdap extends Controller {
 		parse_str(urldecode($response),$array);
 		
 		if(isset($array['ACK']) && $array['ACK']=='Success'){
-			$url = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
+			if (!$this->config->get('pp_adap_test')) {
+				$url = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
+			} else {
+				$url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
+			}
 			$return = array('url'=>$url.$array['TOKEN']);
 			$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 200 OK');
 			$this->response->setOutput(json_encode($return));
