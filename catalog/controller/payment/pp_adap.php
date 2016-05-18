@@ -193,7 +193,7 @@ class ControllerPaymentPpAdap extends Controller {
 // 		if($this->config->get('config_logo')){
 // 			$data['LOGOIMG'] = $server.'image/'.$this->config->get('config_logo');
 // 		}
-		
+
 		foreach($receivers as $key=>$receiver){
 			foreach($receiver as $field=>$value){
 				$data['PAYMENTREQUEST_'.$key.'_'.$field] = $value;
@@ -213,9 +213,9 @@ class ControllerPaymentPpAdap extends Controller {
 		
 		if(isset($array['ACK']) && $array['ACK']=='Success'){
 			if (!$this->config->get('pp_adap_test')) {
-				$url = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
-			} else {
 				$url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
+			} else {
+				$url = 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=';
 			}
 			$return = array('url'=>$url.$array['TOKEN']);
 			$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . '/1.1 200 OK');
