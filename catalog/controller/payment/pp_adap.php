@@ -264,6 +264,15 @@ class ControllerPaymentPpAdap extends Controller {
 		
 			$message = '';
 			$this->load->model('checkout/order');
+
+			$this->load->model('onlus/onlus');
+			$this->model_onlus_onlus->createOrder(
+				$this->session->data['order_id'],
+				$data['PAYMENTREQUEST_1_SELLERPAYPALACCOUNTID'],
+				$data['PAYMENTREQUEST_1_AMT'],
+				$data['PAYMENTREQUEST_1_CURRENCYCODE']
+			);
+
 			$this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('config_order_status_id'));
 
 			if (isset($response['TRANSACTIONID'])) {

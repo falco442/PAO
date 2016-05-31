@@ -45,6 +45,18 @@
 			$query = "INSERT INTO ".DB_PREFIX."onlus (`$fields`) VALUES ('$values')";
 			$this->db->query($query);
 		}
+
+		public function createOrder($orderId,$onlusPaypalId,$amount,$currencyCode){
+			$onlusId = $this->getByPaypalId($onlusPaypalId);
+			$sql = "INSERT INTO `".DB_PREFIX."order_onlus` (`order_id`,`onlus_id`,`amount`,`currency_code`) VALUES ($orderId,$onlusId,'$amount','$currencyCode')";
+			$this->db->query($sql);
+		}
+
+		public function getByPaypalId($paypalId){
+			$sql = "SELECT `onlus_id` FROM `".DB_PREFIX."onlus` WHERE `paypal_id`='$paypalId' LIMIT 1";
+			$query = $this->db->query($sql);
+			return $query->row['onlus_id'];
+		}
 		
 		public function deleteOnlus($id){
 			$query = "DELETE FROM `".DB_PREFIX."onlus` WHERE `onlus_id` = $id";

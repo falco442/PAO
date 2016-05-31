@@ -304,10 +304,20 @@ class ControllerPaymentPpAdap extends Controller {
 			);
 		";
 		$this->db->query($sql);
+		$sql = "
+			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."order_onlus` (
+			  `order_id` int(11) NOT NULL,
+			  `onlus_id` int(10) unsigned NOT NULL,
+			  `amount` decimal(15,4) NOT NULL,
+			  `currency_code` varchar(3) NOT NULL
+			)
+		";
+		$this->db->query($sql);
 	}
 	
 	protected function dropTables(){
 		$sql = "DROP TABLE IF EXISTS `".DB_PREFIX."onlus`";
+		$sql = "DROP TABLE IF EXISTS `".DB_PREFIX."order_onlus`";
 	}
 }
 ?>
